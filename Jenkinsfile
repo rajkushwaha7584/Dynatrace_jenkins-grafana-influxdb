@@ -32,23 +32,27 @@ pipeline {
     post {
         success {
             script {
+                def fields = [
+                    total: 1,
+                    passed: 1,
+                    failed: 0,
+                    duration_seconds: ((currentBuild.duration ?: 0) / 1000) as long
+                ]
+
+                def tags = [
+                    job_name: env.JOB_NAME ?: 'unknown',
+                    build_number: env.BUILD_NUMBER ?: '0',
+                    result: 'SUCCESS',
+                    branch: env.BRANCH_NAME ?: 'manual'
+                ]
+
                 influxDbPublisher(
                     selectedTarget: 'jenkins-influxdb',
                     customDataMap: [
-                        'jenkins_pipeline_summary': [
-                            total: 1,
-                            passed: 1,
-                            failed: 0,
-                            duration_seconds: ((currentBuild.duration ?: 0) / 1000) as long
-                        ]
+                        'jenkins_pipeline_summary': fields
                     ],
                     customDataMapTags: [
-                        'jenkins_pipeline_summary': [
-                            job_name: env.JOB_NAME ?: 'unknown',
-                            build_number: env.BUILD_NUMBER ?: '0',
-                            result: 'SUCCESS',
-                            branch: env.BRANCH_NAME ?: 'manual'
-                        ]
+                        'jenkins_pipeline_summary': tags
                     ]
                 )
             }
@@ -56,23 +60,27 @@ pipeline {
 
         failure {
             script {
+                def fields = [
+                    total: 1,
+                    passed: 0,
+                    failed: 1,
+                    duration_seconds: ((currentBuild.duration ?: 0) / 1000) as long
+                ]
+
+                def tags = [
+                    job_name: env.JOB_NAME ?: 'unknown',
+                    build_number: env.BUILD_NUMBER ?: '0',
+                    result: 'FAILURE',
+                    branch: env.BRANCH_NAME ?: 'manual'
+                ]
+
                 influxDbPublisher(
                     selectedTarget: 'jenkins-influxdb',
                     customDataMap: [
-                        'jenkins_pipeline_summary': [
-                            total: 1,
-                            passed: 0,
-                            failed: 1,
-                            duration_seconds: ((currentBuild.duration ?: 0) / 1000) as long
-                        ]
+                        'jenkins_pipeline_summary': fields
                     ],
                     customDataMapTags: [
-                        'jenkins_pipeline_summary': [
-                            job_name: env.JOB_NAME ?: 'unknown',
-                            build_number: env.BUILD_NUMBER ?: '0',
-                            result: 'FAILURE',
-                            branch: env.BRANCH_NAME ?: 'manual'
-                        ]
+                        'jenkins_pipeline_summary': tags
                     ]
                 )
             }
