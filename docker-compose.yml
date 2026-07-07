@@ -1,0 +1,44 @@
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+    depends_on:
+      - influxdb
+
+  influxdb:
+    image: influxdb:2.9.1
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: Admin@12345
+      DOCKER_INFLUXDB_INIT_ORG: devops
+      DOCKER_INFLUXDB_INIT_BUCKET: jenkins
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: jenkins-influxdb-token-123
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+      - influxdb-config:/etc/influxdb2
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - influxdb
+
+volumes:
+  jenkins-data:
+  influxdb-data:
+  influxdb-config:
+  grafana-data:
