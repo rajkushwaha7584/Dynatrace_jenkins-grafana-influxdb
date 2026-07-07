@@ -1,0 +1,15 @@
+# Logs
+*.log
+
+# Local env/secrets
+.env
+*.env
+
+# Editor files
+.vscode/
+.idea/
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
